@@ -1,3 +1,5 @@
+import { InvalidCredentialException } from "../Exceptions/InvalidCredentialException";
+
 const knex = require('knex')(require('../knexfile').development);
 const bcrypt1 = require('bcrypt');
 
@@ -25,13 +27,13 @@ const validateUser = async (email: string, password: string) => {
     .first();
 
   if (!user) {
-    throw new Error('User not found');
+    throw new InvalidCredentialException();
   }
 
   const isMatch = await bcrypt1.compare(password, user.password);
 
   if (!isMatch) {
-    throw new Error('Invalid password');
+    throw new InvalidCredentialException();
   }
 
   return user;
