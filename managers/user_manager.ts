@@ -3,21 +3,42 @@ import { InvalidCredentialException } from "../Exceptions/InvalidCredentialExcep
 const knex = require('knex')(require('../knexfile').development);
 const bcrypt1 = require('bcrypt');
 
-// Hash password before saving user
+// Function to create a user and associated calendar
 const createUser = async (email: string, password: string) => {
-  const salt = await bcrypt1.genSaltSync(10);
-  console.log(password)
+  // Start a transaction
+  const trx = await knex.transaction();
 
-  const hashedPassword = await bcrypt1.hash( password, salt);
-  // const hashedPassword = await bcrypt.hash(saltedPassword, 10);
-  
-  const [user] = await knex('users')
-    .insert({
-      email,
-      password: hashedPassword,
-    })
-    .returning('*');
-  return user;
+  try {
+    // Hash the password
+    const salt = await bcrypt1.genSaltSync(10);
+    const hashedPassword = await bcrypt1.hash(password, salt);
+
+    // Insert the user into the users table
+    const [user] = await trx('users')
+      .insert({
+        email,
+        password: hashedPassword,
+      })
+      .returning('*');
+
+    // Insert a calendar associated with the user
+    const [calendar] = await trx('calendars')
+      .insert({
+        userId: user.id,
+        sharedWith: JSON.stringify([]), // Initializing an empty sharedWith array
+      })
+      .returning('*');
+
+    // Commit the transaction
+    await trx.commit();
+
+    // Return the user and the associated calendar
+    return { user, calendar };
+  } catch (error) {
+    // If any error occurs, rollback the transaction
+    await trx.rollback();
+    throw error;
+  }
 };
 
 // Validate user credentials

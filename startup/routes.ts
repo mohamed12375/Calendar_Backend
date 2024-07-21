@@ -1,5 +1,5 @@
 const exp = require('express');
-const customers = require('../routes/customers');
+const events = require('../routes/events');
 const auth = require('../routes/auth');
 const jwtAuth1 = require("../middleware/authorized")
 
@@ -10,6 +10,6 @@ module.exports = function(app: { use: (arg0: string,arg1?: undefined, arg2?: und
   
   app.use(exp.json());
   app.use('/api/auth', auth);
-  app.use('/api/customers',jwtAuth1,  customers);
+  app.use('/api/events',jwtAuth1,  events);
   app.use(error);
 }
