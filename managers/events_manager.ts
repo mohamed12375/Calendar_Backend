@@ -1,24 +1,60 @@
-// db/queries.js
+// db/EventModel.ts
 
-const knex_events = require('./index');
+import { CalenderNotFoundException } from '../Exceptions/CalenderNotFoundException';
+import { EventDTO } from '../models/DTOs/EventsDTO';
+import { db } from '../startup/db';
 
-// Function to create an event
-const createEvent = async (event: any) => {
-  return await knex_events('events').insert(event).returning('*');
-};
 
-// Function to get all events paginated by date
-const getAllEventsPaginated = async (page: Int32Array, pageSize: Int32Array) => {
-  return await knex_events('events')
-    .orderBy('date', 'desc')
-    .paginate({
+export interface calendar_Event {
+  id?: number;
+  name: string;
+  details: string;
+  date: Date;
+  calendarId: number;
+  userId?: number;
+  sharedWith: string[];
+}
+
+class EventModel {
+  static async createEvent(event: calendar_Event, userId: any): Promise<calendar_Event> {
+    // Retrieve the calendarId for the given userId
+    const [calendar] = await db('calendars')
+    .select('id')
+    .where({ userId: userId });
+    console.log(calendar)
+    if (!calendar) {
+      throw new CalenderNotFoundException('Calendar not found for the given user.');
+    }
+
+    // Populate the calendarId and userId in the event
+    event.calendarId = calendar.id;
+    event.userId = userId;
+
+    // Insert the event into the database
+    const [newEvent] = await db('events').insert(event).returning('*');
+    return newEvent;
+  }
+
+  static async getAllEventsPaginated(page: number, pageSize: number, searchTerm: string): Promise<any> {
+    let query = db('events').orderBy('date', 'desc');
+
+    if (searchTerm) {
+      query = query.where('name', 'ilike', `%${searchTerm}%`);
+    }
+
+    const result = await query.paginate({
       perPage: pageSize,
       currentPage: page,
       isLengthAware: true,
     });
-};
 
-module.exports = {
-  createEvent,
-  getAllEventsPaginated,
-};
+      const events = EventDTO.fromDatabaseArray(result.data);
+
+    return {
+      data: events,
+      pagination: result.pagination,
+    };
+  }
+}
+
+export default EventModel;

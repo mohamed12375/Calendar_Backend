@@ -36,7 +36,6 @@ router.post('/sign-up', async (req: { body: { email: string; password: string; }
     
     const { error } = validate(req.body); 
     if (error)  throw new ValidationException(error.details[0].message);
-       //return res.status(400).send(error.details[0].message);
 
     let user = await user_manager.GetUser(req.body.email);
 

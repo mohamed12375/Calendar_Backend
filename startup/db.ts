@@ -1,3 +1,4 @@
+import { attachPaginate } from "knex-paginate";
 
 const { Pool, Client } = require('pg');
 require('dotenv').config();
@@ -5,7 +6,7 @@ const knex = require('knex');
 const knexConfig = require('../knexfile').development;
 
 const connectionParams = {
-  user: process.env.DB_USER,
+    user: process.env.DB_USER,
     host: process.env.DB_HOST,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
@@ -17,11 +18,12 @@ const pool = new Pool(
   database: process.env.DB_DATABASE
 });
 
-// Function to check and create the database if it doesn't exist
-async function setupDatabase() {
-  // Connect to the PostgreSQL server (not a specific database)
-  const client = new Client(connectionParams);
 
+const db = knex(knexConfig);
+attachPaginate();
+
+async function setupDatabase() {
+  const client = new Client(connectionParams);
   try {
     await client.connect();
 
@@ -34,18 +36,18 @@ async function setupDatabase() {
     } else {
       console.log(`Database '${process.env.DB_DATABASE}' already exists.`);
     }
+
     await client.end();
-     // Initialize Knex with the new database connection
-     const db = knex(knexConfig);
 
-     // Run migrations
-     await db.migrate.latest();
+    // Run migrations
+    await db.migrate.latest();
+    console.log('Migrations run successfully.');
   } catch (err) {
-    console.error('Error checking or creating database:', err);
-  } 
+    console.error('Error setting up the database:', err);
+    throw err;
+  }
 }
+ //setupDatabase()
 
-// Call the function to set up the database
-setupDatabase();
-
-module.exports = pool
+// Export the setup function and the db instance
+export { setupDatabase, db , pool};

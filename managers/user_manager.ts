@@ -1,12 +1,13 @@
 import { InvalidCredentialException } from "../Exceptions/InvalidCredentialException";
 
-const knex = require('knex')(require('../knexfile').development);
+import { db } from '../startup/db';
+
 const bcrypt1 = require('bcrypt');
 
 // Function to create a user and associated calendar
 const createUser = async (email: string, password: string) => {
   // Start a transaction
-  const trx = await knex.transaction();
+  const trx = await db.transaction();
 
   try {
     // Hash the password
@@ -43,7 +44,7 @@ const createUser = async (email: string, password: string) => {
 
 // Validate user credentials
 const validateUser = async (email: string, password: string) => {
-  const user = await knex('users')
+  const user = await db('users')
     .where({ email })
     .first();
 
@@ -61,7 +62,7 @@ const validateUser = async (email: string, password: string) => {
 };
 
 const GetUser = async(email: string) =>{
-  const user = await knex('users')
+  const user = await db('users')
     .where({ email: email.toLowerCase() })
     .first();
 

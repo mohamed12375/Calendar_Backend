@@ -3,8 +3,11 @@ const express = require('express');
 // require('typescript-require');
 const cors = require('cors');
 const app = express();
+import rateLimiter from './middleware/rateLimiter';
 
 app.use(cors());
+app.use(rateLimiter); // Apply rate limiting globally
+
 
 
 require('./startup/logging');
