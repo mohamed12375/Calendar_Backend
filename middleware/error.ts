@@ -1,7 +1,7 @@
 const winston = require('winston');
 const { ExceptionError } = require('../Exceptions/mainError/ExceptionError');
 
-module.exports = function(err, req, res, next){
+module.exports = function(err: { message: any; statusCode: any; }, req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { status: string; message: any; }): void; new(): any; }; }; }, next: any){
   winston.error(err.message, err);
 
   // error

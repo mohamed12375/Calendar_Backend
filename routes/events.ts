@@ -16,7 +16,8 @@ router.post('/create', async (req: {
     const createEventRequest = new CreateEventRequest(
       req.body.name,
       req.body.details,
-      req.body.date
+      req.body.fromDate,
+      req.body.toDate
     );
    
     const { error } = CreateEventRequest.validate(createEventRequest);
@@ -29,14 +30,17 @@ router.post('/create', async (req: {
 });
 
 // Route to get all events paginated by date
-router.get('/events', async (req: { query: { page?: 1 | undefined; pageSize?: 10 | undefined; searchTerm?: string }; }, res: { json: (arg0: any) => void; status: (arg0: number) => { (): any; new(): any; json: { (arg0: { error: string; }): void; new(): any; }; }; }) => {
-  const { page = 1, pageSize = 10, searchTerm = '' } = req.query;
-  try {
-    const events = await EventModel.getAllEventsPaginated(Number(page), Number(pageSize), searchTerm);
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch events' });
-  }
+router.get('/events', async (req: { query: { page?: 1 | undefined; pageSize?: 10 | undefined; searchTerm?: string;
+   sortBy?: string; isAscending?: boolean; filterByDate?: string  }; }, 
+   res: { json: (arg0: any) => void; status: (arg0: number) => { (): any; new(): any; 
+    json: { (arg0: { error: string; }): void; new(): any; }; }; }) => {
+
+      const { page = 1, pageSize = 10, searchTerm = '', sortBy = 'fromDate', isAscending = true, filterByDate = '' } //TODO: Fix sortBy
+        = req.query;
+
+      const events = await EventModel.getAllEventsPaginated(Number(page), Number(pageSize), searchTerm, sortBy, isAscending, filterByDate);
+      res.json(events);
+  
 });
 
 

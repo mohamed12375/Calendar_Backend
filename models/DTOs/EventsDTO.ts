@@ -1,16 +1,16 @@
-// dtos/EventDTO.ts
-
 export class EventDTO {
     id: number;
     name: string;
     details?: string;
-    date: Date;
+    fromDate: Date;
+    toDate: Date;
   
-    constructor(id: number, name: string, details: string, date: Date) {
+    constructor(id: number, name: string, details: string, fromDate: Date, toDate: Date) {
       this.id = id;
       this.name = name;
       this.details = details;
-      this.date = date;
+      this.fromDate = fromDate;
+      this.toDate = toDate;
     }
   
     static fromDatabaseObject(dbObject: any): EventDTO {
@@ -18,7 +18,8 @@ export class EventDTO {
         dbObject.id,
         dbObject.name,
         dbObject.details,
-        new Date(dbObject.date)
+        new Date(dbObject.fromDate),
+        new Date(dbObject.toDate)
       );
     }
   

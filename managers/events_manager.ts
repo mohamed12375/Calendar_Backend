@@ -9,7 +9,8 @@ export interface calendar_Event {
   id?: number;
   name: string;
   details: string;
-  date: Date;
+  fromDate: Date;
+  toDate: Date;
   calendarId: number;
   userId?: number;
   sharedWith: string[];
@@ -35,11 +36,24 @@ class EventModel {
     return newEvent;
   }
 
-  static async getAllEventsPaginated(page: number, pageSize: number, searchTerm: string): Promise<any> {
-    let query = db('events').orderBy('date', 'desc');
+  static async getAllEventsPaginated(
+    page: number,
+    pageSize: number,
+    searchTerm: string,
+    sortBy: string,
+    isAscending: boolean,
+    filterByDate: string
+  ):
+   Promise<any> {
+    console.log(sortBy)
+    let query = db('events').orderBy(sortBy, isAscending == true ? 'asc' : 'desc');
 
     if (searchTerm) {
       query = query.where('name', 'ilike', `%${searchTerm}%`);
+    }
+
+    if (filterByDate) {
+      query = query.where('fromDate', filterByDate);
     }
 
     const result = await query.paginate({

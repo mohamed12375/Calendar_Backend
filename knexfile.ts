@@ -16,6 +16,7 @@ module.exports = {
       port: process.env.DB_PORT,
     },
     migrations: {
+      directory: './dist/migrations',
       tableName: 'knex_migrations',
     },
   },
@@ -32,6 +33,7 @@ module.exports = {
       max: 10
     },
     migrations: {
+      directory: './dist/migrations',
       tableName: 'knex_migrations'
     }
   },
@@ -48,6 +50,7 @@ module.exports = {
       max: 10
     },
     migrations: {
+      directory: './dist/migrations',
       tableName: 'knex_migrations'
     }
   }

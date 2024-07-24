@@ -4,11 +4,12 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 import rateLimiter from './middleware/rateLimiter';
+import { setupDatabase } from './startup/db';
 
 app.use(cors());
 app.use(rateLimiter); // Apply rate limiting globally
 
-
+setupDatabase()
 
 require('./startup/logging');
 require('./startup/routes')(app);
