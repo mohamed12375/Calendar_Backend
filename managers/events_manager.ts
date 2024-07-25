@@ -109,7 +109,7 @@ class EventModel {
     }
 
     if (filterByDate) {
-      query = query.where('fromDate', filterByDate);
+      query = query.where('fromDate', filterByDate); 
     }
 
     const result = await query.paginate({
