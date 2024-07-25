@@ -29,6 +29,40 @@ router.post('/create', async (req: {
   
 });
 
+router.put('/:eventId', async (req: { params: { eventId: string; }; body: { name: any; details: any; fromDate: any; toDate: any; }; user: { id: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: calendar_Event): void; new(): any; }; }; }) => {
+    const eventId = parseInt(req.params.eventId, 10);
+    if (isNaN(eventId)) {
+      throw new ValidationException('Invalid event ID');
+    }
+
+    const updateEventRequest = new CreateEventRequest(
+      req.body.name,
+      req.body.details,
+      req.body.fromDate,
+      req.body.toDate
+    );
+
+    const { error } = CreateEventRequest.validate(updateEventRequest);
+    if (error) throw new ValidationException(error.details[0].message);
+
+    const updatedEvent = await EventModel.updateEvent(eventId, updateEventRequest, req.user);
+    res.status(200).json(updatedEvent);
+  
+});
+
+
+// Delete Event Route
+router.delete('/:eventId', async (req: { params: { eventId: string; }; user: { id: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; send: { (): void; new(): any; }; }; }) => {
+    const eventId = parseInt(req.params.eventId, 10);
+    if (isNaN(eventId)) {
+      throw new ValidationException('Invalid event ID');
+    }
+
+    await EventModel.deleteEvent(eventId, req.user);
+    res.status(204).send();
+  
+});
+
 // Route to get all events paginated by date
 router.get('/events', async (req: { query: { page?: 1 | undefined; pageSize?: 10 | undefined; searchTerm?: string;
    sortBy?: string; isAscending?: boolean; filterByDate?: string  }; }, 
